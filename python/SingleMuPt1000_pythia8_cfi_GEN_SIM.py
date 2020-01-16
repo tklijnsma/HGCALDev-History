@@ -21,8 +21,15 @@ options.register(
     VarParsing.varType.float,
     "Minimum energy in MeV for which secondary photons in Calo will be saved"
     )
+options.register(
+    'seed',
+    1001,
+    VarParsing.multiplicity.singleton,
+    VarParsing.varType.int,
+    "Generator seed"
+    )
 options.outputFile = 'hgcalhistorydebug.root'
-options.maxEvents = 100
+options.maxEvents = 2
 options.parseArguments()
 
 
@@ -49,7 +56,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 # reset all random numbers to ensure statistically distinct but reproducible jobs
 from IOMC.RandomEngine.RandomServiceHelper import RandomNumberServiceHelper
 randHelper = RandomNumberServiceHelper(process.RandomNumberGeneratorService)
-randHelper.resetSeeds(1001)
+randHelper.resetSeeds(options.seed)
 
 # process.MessageLogger = cms.Service(
 #     "MessageLogger",
