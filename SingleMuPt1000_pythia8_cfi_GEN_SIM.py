@@ -5,6 +5,27 @@
 # with command line options: SingleMuPt1000_pythia8_cfi --conditions auto:phase2_realistic_T14 -n 10 --era Phase2C8_timing_layer_bar --eventcontent FEVTDEBUG --relval 9000,100 -s GEN,SIM --datatier GEN-SIM --beamspot HLLHC --geometry Extended2026D41 --no_exec --fileout file:step1.root
 import FWCore.ParameterSet.Config as cms
 
+from FWCore.ParameterSet.VarParsing import VarParsing
+options = VarParsing("analysis")
+options.register(
+    'EminFineTrack',
+    10000.,
+    VarParsing.multiplicity.singleton,
+    VarParsing.varType.float,
+    "Minimum energy in MeV for which secondary tracks in Calo will be saved"
+    )
+options.register(
+    'EminFinePhoton',
+    500.,
+    VarParsing.multiplicity.singleton,
+    VarParsing.varType.float,
+    "Minimum energy in MeV for which secondary photons in Calo will be saved"
+    )
+options.outputFile = 'hgcalhistorydebug.root'
+options.maxEvents = 100
+options.parseArguments()
+
+
 from Configuration.Eras.Era_Phase2C8_timing_layer_bar_cff import Phase2C8_timing_layer_bar
 
 process = cms.Process('SIM',Phase2C8_timing_layer_bar)
@@ -64,9 +85,9 @@ process.MessageLogger = cms.Service("MessageLogger",
     )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100),
+    input = cms.untracked.int32(options.maxEvents),
     output = cms.optional.untracked.allowed(cms.int32,cms.PSet)
-)
+    )
 
 # Input source
 process.source = cms.Source("EmptySource")
@@ -115,7 +136,7 @@ process.FEVTDEBUGoutput = cms.OutputModule("PoolOutputModule",
         dataTier = cms.untracked.string('GEN-SIM'),
         filterName = cms.untracked.string('')
         ),
-    fileName = cms.untracked.string('file:hgcalhistorydebug.root'),
+    fileName = cms.untracked.string(options.outputFile),
     outputCommands = process.FEVTDEBUGEventContent.outputCommands,
     splitLevel = cms.untracked.int32(0)
     )
@@ -158,12 +179,13 @@ process.endjob_step = cms.EndPath(process.endOfProcess)
 process.FEVTDEBUGoutput_step = cms.EndPath(process.FEVTDEBUGoutput)
 
 # Options for saving fine hits
-# process.g4SimHits.DoFineCalo = cms.bool(True)
+process.g4SimHits.DoFineCalo = cms.bool(True)
 # process.g4SimHits.EminFineTrack = cms.double(1.5)
 # process.g4SimHits.EminFinePhoton = cms.double(1.5)
-process.g4SimHits.CaloTrkProcessing.DoFineCalo = cms.bool(True)
-process.g4SimHits.CaloTrkProcessing.EminFineTrack = cms.double(10000.)
-process.g4SimHits.CaloTrkProcessing.EminFinePhoton = cms.double(500.)
+# process.g4SimHits.CaloTrkProcessing.EminFineTrack = cms.double(10000.)
+# process.g4SimHits.CaloTrkProcessing.EminFinePhoton = cms.double(500.)
+process.g4SimHits.CaloTrkProcessing.EminFineTrack = cms.double(options.EminFineTrack)
+process.g4SimHits.CaloTrkProcessing.EminFinePhoton = cms.double(options.EminFinePhoton)
 
 
 # Schedule definition
