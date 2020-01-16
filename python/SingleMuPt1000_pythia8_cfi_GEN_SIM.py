@@ -28,8 +28,15 @@ options.register(
     VarParsing.varType.int,
     "Generator seed"
     )
+options.register(
+    'firstEvent',
+    0,
+    VarParsing.multiplicity.singleton,
+    VarParsing.varType.int,
+    "Helpful to skip the first firstEvent-1 events"
+    )
 options.outputFile = 'hgcalhistorydebug.root'
-options.maxEvents = 2
+options.maxEvents = 10
 options.parseArguments()
 
 
@@ -97,7 +104,15 @@ process.maxEvents = cms.untracked.PSet(
     )
 
 # Input source
-process.source = cms.Source("EmptySource")
+if options.firstEvent > 0:
+    process.source = cms.Source(
+        "EmptySource",
+        firstEvent = cms.untracked.uint32(9)
+        )
+else:
+    process.source = cms.Source(
+        "EmptySource",
+        )
 
 process.options = cms.untracked.PSet(
     FailPath = cms.untracked.vstring(),
