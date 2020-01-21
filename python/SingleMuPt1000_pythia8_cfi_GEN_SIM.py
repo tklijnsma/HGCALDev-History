@@ -15,6 +15,13 @@ options.register(
     "Minimum energy in MeV for which secondary tracks in Calo will be saved"
     )
 options.register(
+    'MuonPt',
+    10000.,
+    VarParsing.multiplicity.singleton,
+    VarParsing.varType.float,
+    "Energy in MeV used for the muon gun"
+    )
+options.register(
     'EminFinePhoton',
     500.,
     VarParsing.multiplicity.singleton,
@@ -177,8 +184,8 @@ process.generator = cms.EDFilter("Pythia8PtGun",
         MaxPhi = cms.double(3.14159265359),
         MinEta = cms.double(-2.5),
         MinPhi = cms.double(-3.14159265359),
-        MinPt = cms.double(99.99),
-        MaxPt = cms.double(100.01),
+        MinPt = cms.double(options.MuonPt - 0.01),
+        MaxPt = cms.double(options.MuonPt + 0.01),
         # ParticleID = cms.vint32(211), # Pions
         ParticleID = cms.vint32(-13), # Muons
         ),
@@ -187,7 +194,7 @@ process.generator = cms.EDFilter("Pythia8PtGun",
         ),
     Verbosity = cms.untracked.int32(0),
     firstRun = cms.untracked.uint32(1),
-    psethack = cms.string('single mu pt 1000')
+    psethack = cms.string('single mu pt {0}'.format(int(options.MuonPt)))
     # psethack = cms.string('single pi pt 1000')
     )
 
